@@ -1,0 +1,46 @@
+{
+  "solargraph.diagnostics": true,
+  "solargraph.completion": true,
+  "solargraph.formatting": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.filetypes": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "coc.preferences.formatOnSaveFiletypes": ["javascript", "ruby", "typescriptreact", "javascriptreact", "typescript"],
+  "prettier.eslintIntegration": true,
+  "languageserver": {
+    "cquery": {
+      "command": "~/cquery/build/release/bin/cquery",
+      "args": ["--log-file=/tmp/cq.log"],
+      "filetypes": ["c", "cpp"],
+      "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
+      "initializationOptions": {
+        "cacheDirectory": "/tmp/cquery"
+      }
+    }
+  },
+  "diagnostic-languageserver.linters": {
+    "clj_kondo_lint": {
+      "command": "clj-kondo",
+      "debounce": 100,
+      "args": [ "--lint", "%filepath"],
+      "offsetLine": 0,
+      "offsetColumn": 0,
+      "sourceName": "clj-kondo",
+      "formatLines": 1,
+      "formatPattern": [
+        "^[^:]+:(\\d+):(\\d+):\\s+([^:]+):\\s+(.*)$",
+        {
+          "line": 1,
+          "column": 2,
+          "message": 4,
+          "security": 3
+        }
+      ],
+      "securities": {
+        "error": "error",
+        "warning": "warning",
+        "note": "info"
+      }
+    }
+  },
+  "diagnostic-languageserver.filetypes": {"clojure":"clj_kondo_lint"}
+}

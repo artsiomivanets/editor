@@ -1,0 +1,118 @@
+---
+
+- hosts: all
+  vars:
+    home: "{{ ansible_env.HOME }}"
+
+  tasks:
+    - name: Donwload scripts for pip2, git-prompt, nodejs
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - { url: "https://deb.nodesource.com/setup_lts.x", dest: /tmp/node-install.sh }
+        - { url: "https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh", dest: "{{home}}/.git-prompt.sh" }
+        - { url: "https://bootstrap.pypa.io/pip/2.7/get-pip.py", dest: "/tmp/get-pip.py" }
+
+    - name: Add nodejs repository
+      become: yes
+      ansible.builtin.shell:
+        bash /tmp/node-install.sh
+
+    - name: Install default packages for work
+      become: yes
+      apt:
+        update_cache: yes
+        pkg:
+        - software-properties-common
+        - git
+        - make
+        - nodejs
+        - ripgrep
+        - python2
+        - python3-pip
+        - bash-completion
+        - python3-dev
+        - neovim
+        - nodejs
+        - yarn
+        - tmux
+
+    - name: Add emacs repository
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: ppa:kelleyk/emacs
+        update_cache: no
+
+    - name: Install pip2
+      become: yes
+      ansible.builtin.shell:
+        pip2 || python2 /tmp/get-pip.py
+
+
+    - name: Uninstall pynvim, neovim
+      pip:
+        state: absent
+        name: ['pynvim', 'neovim']
+        executable: pip
+
+    - name: Install pynvim
+      pip:
+        state: latest
+        name: ['pynvim']
+        executable: pip
+
+    - name: Install pexpect
+      pip:
+        name: ['pexpect']
+        executable: pip3
+
+    - name: Install fzf
+      ansible.builtin.git:
+        repo:  https://github.com/junegunn/fzf.git
+        dest: "{{ home }}/.fzf"
+
+    - name: Fzf installation
+      ansible.builtin.expect:
+        command: "{{ home }}/.fzf/install"
+        responses:
+          (?m)^Do: "y"
+
+    - name: Install asdf
+      ansible.builtin.git:
+        repo: https://github.com/asdf-vm/asdf.git
+        dest: "{{ home }}/.asdf"
+
+
+    - name: Copy bash config files
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - { src: "files/vimrc", dest: "{{home}}/dotfiles/" }
+        - { src: "files/coc-settings.json", dest: "{{home}}/dotfiles/" }
+        - { src: "files/tmux.conf", dest: "{{home}}/dotfiles/" }
+        - { src: "files/bashrc", dest: "{{home}}/.bashrc" }
+        - { src: "files/bash_profile", dest: "{{home}}/.bash_profile" }
+        - { src: "files/inputrc", dest: "{{home}}/.inputrc" }
+
+    - name: Ensure .config/nvim exists
+      file:
+        path: "{{ home }}/.config/nvim"
+        state: directory
+
+    - name: Create symlinks to dotfiles
+      ansible.builtin.file:
+        src: '{{ home }}/dotfiles/{{ item.src }}'
+        dest: '{{ item.dest }}'
+        state: link
+      loop:
+        - { src: "vimrc", dest: "{{home}}/.config/nvim/init.vim" }
+        - { src: "coc-settings.json", dest: "{{home}}/.config/nvim/coc-settings.json" }
+        - { src: "tmux.conf", dest: "{{home}}/.tmux.conf" }
+
+
+    - name: Install vim plugins
+      ansible.builtin.shell:
+        nvim +PlugInstall +qall --headless
+
