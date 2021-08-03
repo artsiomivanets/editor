@@ -5,6 +5,23 @@
     home: "{{ ansible_env.HOME }}"
 
   tasks:
+    - name: Save distro name
+      ansible.builtin.shell: lsb_release -cs
+      register: distro_name
+
+    - name: Add key for Postgres repo
+      become: yes
+      ansible.builtin.apt_key:
+        url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+        state: present
+
+    - name: Add Postgres repo to sources list
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ distro_name.stdout }}-pgdg main"
+        state: present
+
+
     - name: Donwload scripts for pip2, git-prompt, nodejs
       ansible.builtin.get_url:
         url: "{{ item.url }}"
@@ -24,6 +41,13 @@
       apt:
         update_cache: yes
         pkg:
+        - rofi
+        - libssl-dev
+        - libreadline-dev
+        - libsqlite3-dev
+        - sqlite3
+        - postgresql-13
+        - libpq-dev
         - software-properties-common
         - git
         - make
@@ -37,6 +61,8 @@
         - nodejs
         - yarn
         - tmux
+        - ncdu
+        - compton
 
     - name: Add emacs repository
       become: yes

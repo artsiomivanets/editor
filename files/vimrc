@@ -300,7 +300,7 @@ nnoremap <Leader>w :w<CR>
 nnoremap <Leader>o :GFiles .<CR>
 nnoremap <leader>fc :Commits<CR>
 nnoremap <leader>ff :Files<CR>
-nnoremap <leader>fa :Ag<CR>
+nnoremap <leader>fa :Rg<CR>
 
 let NERDTreeIgnore = ['\.pyc$', '\.retry$']
 

@@ -27,3 +27,5 @@ fi
 set -o vi
 export PS1='$(__git_ps1) \W\$ '
 
+. $HOME/.asdf/asdf.sh
+. $HOME/.asdf/completions/asdf.bash
