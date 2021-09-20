@@ -1,1 +1,4 @@
 set editing-mode vi
+
+set keymap vi-insert                              │
+"\C-e": backward-delete-char
