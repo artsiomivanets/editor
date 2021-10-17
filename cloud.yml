@@ -5,104 +5,35 @@
     home: "{{ ansible_env.HOME }}"
 
   tasks:
-    - name: Save distro name
-      ansible.builtin.shell: lsb_release -cs
-      register: distro_name
-
-    - name: Add key for Postgres repo
+    - name: Install UI programs
       become: yes
-      ansible.builtin.apt_key:
-        url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
-        state: present
-
-    - name: Add Postgres repo to sources list
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ distro_name.stdout }}-pgdg main"
-        state: present
-
-
-    - name: Donwload scripts for pip2, git-prompt, nodejs
-      ansible.builtin.get_url:
-        url: "{{ item.url }}"
-        dest: "{{ item.dest }}"
-      loop:
-        - { url: "https://deb.nodesource.com/setup_lts.x", dest: /tmp/node-install.sh }
-        - { url: "https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh", dest: "{{home}}/.git-prompt.sh" }
-        - { url: "https://bootstrap.pypa.io/pip/2.7/get-pip.py", dest: "/tmp/get-pip.py" }
-
-    - name: Add nodejs repository
-      become: yes
-      ansible.builtin.shell:
-        bash /tmp/node-install.sh
+      pacman:
+      - chromium
+      - telegram-desktop
 
     - name: Install default packages for work
       become: yes
-      apt:
-        update_cache: yes
-        pkg:
-        - rofi
-        - libssl-dev
-        - libreadline-dev
-        - libsqlite3-dev
-        - sqlite3
-        - postgresql-13
-        - libpq-dev
-        - software-properties-common
-        - git
-        - make
-        - nodejs
-        - ripgrep
-        - python2
-        - python3-pip
-        - bash-completion
-        - python3-dev
-        - neovim
-        - nodejs
-        - yarn
-        - tmux
-        - ncdu
-        - compton
-
-    - name: Add emacs repository
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: ppa:kelleyk/emacs
-        update_cache: no
-
-    - name: Install pip2
-      become: yes
-      ansible.builtin.shell:
-        pip2 || python2 /tmp/get-pip.py
-
-
-    - name: Uninstall pynvim, neovim
-      pip:
-        state: absent
-        name: ['pynvim', 'neovim']
-        executable: pip
-
-    - name: Install pynvim
-      pip:
-        state: latest
-        name: ['pynvim']
-        executable: pip
-
-    - name: Install pexpect
-      pip:
-        name: ['pexpect']
-        executable: pip3
-
-    - name: Install fzf
-      ansible.builtin.git:
-        repo:  https://github.com/junegunn/fzf.git
-        dest: "{{ home }}/.fzf"
-
-    - name: Fzf installation
-      ansible.builtin.expect:
-        command: "{{ home }}/.fzf/install"
-        responses:
-          (?m)^Do: "y"
+      pacman:
+      - sqlite3
+      - postgresql
+      - git
+      - base-devel
+      - make
+      - nodejs
+      - ripgrep
+      - python2
+      - python-pip
+      - python3
+      - python3-pip
+      - bash-completion
+      - neovim
+      - nodejs
+      - yarn
+      - tmux
+      - ncdu
+      - compton
+      - fzf
+      - ranger
 
     - name: Install asdf
       ansible.builtin.git:
