@@ -1,45 +1,46 @@
 ---
 
-- hosts: all
+- name: test
+  hosts: localhost
   vars:
     home: "{{ ansible_env.HOME }}"
 
   tasks:
+
     - name: Install UI programs
       become: yes
-      pacman:
-      - chromium
-      - telegram-desktop
+      community.general.pacman:
+        name:
+          - telegram-desktop
 
     - name: Install default packages for work
       become: yes
-      pacman:
-      - sqlite3
-      - postgresql
-      - git
-      - base-devel
-      - make
-      - nodejs
-      - ripgrep
-      - python2
-      - python-pip
-      - python3
-      - python3-pip
-      - bash-completion
-      - neovim
-      - nodejs
-      - yarn
-      - tmux
-      - ncdu
-      - compton
-      - fzf
-      - ranger
+      community.general.pacman:
+        name:
+          - sqlite3
+          - postgresql
+          - git
+          - base-devel
+          - make
+          - nodejs
+          - ripgrep
+          - python2
+          - python-pip
+          - python3
+          - bash-completion
+          - neovim
+          - nodejs
+          - yarn
+          - tmux
+          - ncdu
+          - compton
+          - fzf
+          - ranger
 
     - name: Install asdf
       ansible.builtin.git:
         repo: https://github.com/asdf-vm/asdf.git
         dest: "{{ home }}/.asdf"
-
 
     - name: Copy bash config files
       ansible.builtin.copy:
